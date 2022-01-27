@@ -1,0 +1,12 @@
+[programs.devnet]
+buildspacesolprogram = "GGuvWUsvRJJtL237i7LMUryFGQJ6sRpdDR3hr7A8cH9Tan"
+
+[registry]
+url = "https://anchor.projectserum.com"
+
+[provider]
+cluster = "devnet"
+wallet = "/home/masangri/.config/solana/id.json"
+
+[scripts]
+test = "node tests/buildspacesolprogram.ts"
