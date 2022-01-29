@@ -50,6 +50,38 @@ const main = async () => {
     account = await program.account.baseAccount.fetch(baseAccount.publicKey);
     console.log('👀 GIF Count (after GIF added):', account.totalGifs.toString());
     console.log('👀 GIF List:', account.gifList);
+
+    // Vote on GIF
+    let index = 0;
+    let gifItem = account.gifList[index];
+    console.log(`GIF at url: ${gifItem.gifLink.toString()} currently has a score of ${gifItem.score.toString()}`);
+    await program.rpc.gifVote(
+        index,
+        true,
+        {
+            accounts: {
+                baseAccount: baseAccount.publicKey,
+                user: provider.wallet.publicKey,
+            }
+        },
+    )
+    account = await program.account.baseAccount.fetch(baseAccount.publicKey);
+    gifItem = account.gifList[index];
+    console.log(`GIF at url: ${gifItem.gifLink.toString()} now has a score of ${gifItem.score.toString()} after upvote`);
+    await program.rpc.gifVote(
+        index,
+        false,
+        {
+            accounts: {
+                baseAccount: baseAccount.publicKey,
+                user: provider.wallet.publicKey,
+            }
+        },
+    )
+    account = await program.account.baseAccount.fetch(baseAccount.publicKey);
+    gifItem = account.gifList[index];
+    console.log(`GIF at url: ${gifItem.gifLink.toString()} now has a score of ${gifItem.score.toString()} after downvote`);
+    
 }
 
 const runMain = async () => {

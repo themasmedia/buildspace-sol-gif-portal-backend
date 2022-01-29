@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-declare_id!("GGuvWUsvRJJtL237i7LMUryFGQJ6sRpdDR3hr7A8cH9T");
+declare_id!("2KUJfwMchPJYaT2yPrDmETtq1d77rPHsEX3rb7Je3DS9");
 
 #[program]
 pub mod buildspacesolprogram {
@@ -19,9 +19,10 @@ pub mod buildspacesolprogram {
         let user = &mut ctx.accounts.user;
 
         // Build the struct
-        let item = ItemStruct {
+        let item = ItemStruct{
             gif_link: gif_link.to_string(),
             user_address: *user.to_account_info().key,
+            score: 0,
         };
 
         // Add the item to the gif_list vector
@@ -29,6 +30,26 @@ pub mod buildspacesolprogram {
         base_account.total_gifs += 1;
         Ok(())
     }
+
+    pub fn gif_vote(
+        ctx: Context<GifVote>,
+        gif_item_index: u32,
+        gif_item_action: bool,
+    ) -> ProgramResult {
+        //
+        let base_account = &mut ctx.accounts.base_account;
+        let _gif_item_index_usize: usize = gif_item_index.to_string().parse().unwrap();
+        let gif_item = &mut base_account.gif_list[_gif_item_index_usize];
+        // gif_item_action == true 👍
+        if gif_item_action {
+            gif_item.score += 1;
+        // gif_item_action == false 👎
+        } else {
+            gif_item.score -= 1;
+        }
+        Ok(())
+    }
+
 }
 
 // STRUCTS
@@ -52,11 +73,21 @@ pub struct AddGif<'info> {
     pub user: Signer<'info>,
 }
 
+//
+#[derive(Accounts)]
+pub struct GifVote<'info> {
+    #[account(mut)]
+    pub base_account: Account<'info, BaseAccount>,
+    #[account(mut)]
+    pub user: Signer<'info>,
+}
+
 // Custom Item Struct
 #[derive(Debug, Clone, AnchorSerialize, AnchorDeserialize)]
 pub struct ItemStruct {
     pub gif_link: String,
     pub user_address: Pubkey,
+    pub score: i64,
 }
 
 // Tell Solana what we want to store on this account
